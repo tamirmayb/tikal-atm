@@ -29,7 +29,7 @@ public class ATMItem {
 
     public static ATMItem of(Money money, Long amount) {
         return ATMItem.builder()
-                .money (money)
+                .money(money)
                 .amount(amount)
                 .build();
     }

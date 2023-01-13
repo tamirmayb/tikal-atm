@@ -1,6 +1,5 @@
 package com.tikal.atm;
 
-import com.google.gson.JsonObject;
 import com.tikal.atm.services.ATMService;
 import io.swagger.annotations.ApiOperation;
 import lombok.AllArgsConstructor;
@@ -13,19 +12,19 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping(value="atm")
+@RequestMapping(value = "atm")
 public class ATMController {
 
     private final ATMService atmService;
 
     @PostMapping("/withdrawal")
-    @ApiOperation(value = "",  notes = "")
+    @ApiOperation(value = "", notes = "")
     public ResponseEntity<Object> withdrawal(@RequestBody() JSONObject input) {
         return ResponseEntity.ok(atmService.withdrawal(input));
     }
 
     @PostMapping("/refill")
-    @ApiOperation(value = "",  notes = "")
+    @ApiOperation(value = "", notes = "")
     public ResponseEntity<Object> refill(@RequestBody JSONObject input) {
         return ResponseEntity.ok(atmService.refill(input));
     }

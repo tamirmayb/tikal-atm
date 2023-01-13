@@ -1,4 +1,3 @@
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.tikal.atm.dto.ATMWithdrawalResultWrapperDTO;
 import com.tikal.atm.dto.RefillResultDTO;
 import com.tikal.atm.errors.exceptions.NotEnoughMoneyException;
@@ -30,11 +29,6 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class ATMTest {
-    IATMService atmService;
-
-    private ATMRepository atmRepository;
-    private Environment env;
-
     private final ATMItem item001 = ATMItem.of(Money.of("0.01", Type.COIN), 10L);
     private final ATMItem item01 = ATMItem.of(Money.of("0.1", Type.COIN), 1L);
     private final ATMItem item1 = ATMItem.of(Money.of("1", Type.COIN), 10L);
@@ -44,6 +38,9 @@ public class ATMTest {
     private final ATMItem item100 = ATMItem.of(Money.of("100", Type.BILL), 2L);
     private final ATMItem item200 = ATMItem.of(Money.of("200", Type.BILL), 1L);
     private final List<ATMItem> allMoney = Arrays.asList(item001, item01, item1, item5, item10, item20, item100, item200);
+    IATMService atmService;
+    private ATMRepository atmRepository;
+    private Environment env;
 
     @Before
     public void init() {
@@ -56,21 +53,21 @@ public class ATMTest {
     @Description("refill happy path")
     public void refill() {
         when(this.atmRepository.findByMoneyMoneyId("0.01"))
-                .thenAnswer(ans-> Optional.of(item001));
+                .thenAnswer(ans -> Optional.of(item001));
         when(this.atmRepository.findByMoneyMoneyId("0.1"))
-                .thenAnswer(ans-> Optional.of(item01));
+                .thenAnswer(ans -> Optional.of(item01));
         when(this.atmRepository.findByMoneyMoneyId("1"))
-                .thenAnswer(ans-> Optional.of(item1));
+                .thenAnswer(ans -> Optional.of(item1));
         when(this.atmRepository.findByMoneyMoneyId("5"))
-                .thenAnswer(ans-> Optional.of(item5));
+                .thenAnswer(ans -> Optional.of(item5));
         when(this.atmRepository.findByMoneyMoneyId("10"))
-                .thenAnswer(ans-> Optional.of(item10));
+                .thenAnswer(ans -> Optional.of(item10));
         when(this.atmRepository.findByMoneyMoneyId("20"))
-                .thenAnswer(ans-> Optional.of(item20));
+                .thenAnswer(ans -> Optional.of(item20));
         when(this.atmRepository.findByMoneyMoneyId("100"))
-                .thenAnswer(ans-> Optional.of(item100));
+                .thenAnswer(ans -> Optional.of(item100));
         when(this.atmRepository.findByMoneyMoneyId("200"))
-                .thenAnswer(ans-> Optional.of(item200));
+                .thenAnswer(ans -> Optional.of(item200));
 
         List<RefillResultDTO> expected = new ArrayList<>();
         expected.add(RefillResultDTO.of("100", 32L));
@@ -87,7 +84,7 @@ public class ATMTest {
     @Description("refill money not found")
     public void refillMoneyNotFound() {
         when(this.atmRepository.findByMoneyMoneyId("0.1"))
-                .thenAnswer(ans-> Optional.of(item01));
+                .thenAnswer(ans -> Optional.of(item01));
 
         atmService.refill(getInputJsonForRefill());
     }
@@ -97,29 +94,29 @@ public class ATMTest {
     public void withdrawal() throws ParseException {
 
         when(this.atmRepository.findByMoneyMoneyId("0.01"))
-                .thenAnswer(ans-> Optional.of(item001));
+                .thenAnswer(ans -> Optional.of(item001));
         when(this.atmRepository.findByMoneyMoneyId("0.1"))
-                .thenAnswer(ans-> Optional.of(item01));
+                .thenAnswer(ans -> Optional.of(item01));
         when(this.atmRepository.findByMoneyMoneyId("1"))
-                .thenAnswer(ans-> Optional.of(item1));
+                .thenAnswer(ans -> Optional.of(item1));
         when(this.atmRepository.findByMoneyMoneyId("5"))
-                .thenAnswer(ans-> Optional.of(item5));
+                .thenAnswer(ans -> Optional.of(item5));
         when(this.atmRepository.findByMoneyMoneyId("10"))
-                .thenAnswer(ans-> Optional.of(item10));
+                .thenAnswer(ans -> Optional.of(item10));
         when(this.atmRepository.findByMoneyMoneyId("20"))
-                .thenAnswer(ans-> Optional.of(item20));
+                .thenAnswer(ans -> Optional.of(item20));
         when(this.atmRepository.findByMoneyMoneyId("100"))
-                .thenAnswer(ans-> Optional.of(item100));
+                .thenAnswer(ans -> Optional.of(item100));
         when(this.atmRepository.findByMoneyMoneyId("200"))
-                .thenAnswer(ans-> Optional.of(item200));
+                .thenAnswer(ans -> Optional.of(item200));
 
         when(this.atmRepository.findByAmountGreaterThan(0L))
-                .thenAnswer(ans-> Optional.of(allMoney));
+                .thenAnswer(ans -> Optional.of(allMoney));
 
         when(this.env.getProperty(MAX_WITHDRAWAL_PARAM))
-                .thenAnswer(ans-> "2000");
+                .thenAnswer(ans -> "2000");
         when(this.env.getProperty(MAX_COINS_PARAM))
-                .thenAnswer(ans-> "50");
+                .thenAnswer(ans -> "50");
 
         String jsonStrForInput = "{\n" +
                 "\"amount\": 660.12,\n" +
@@ -139,29 +136,29 @@ public class ATMTest {
     @Description("withdrawal not enough money")
     public void withdrawal_not_enough_money() throws ParseException {
         when(this.atmRepository.findByMoneyMoneyId("0.01"))
-                .thenAnswer(ans-> Optional.of(item001));
+                .thenAnswer(ans -> Optional.of(item001));
         when(this.atmRepository.findByMoneyMoneyId("0.1"))
-                .thenAnswer(ans-> Optional.of(item01));
+                .thenAnswer(ans -> Optional.of(item01));
         when(this.atmRepository.findByMoneyMoneyId("1"))
-                .thenAnswer(ans-> Optional.of(item1));
+                .thenAnswer(ans -> Optional.of(item1));
         when(this.atmRepository.findByMoneyMoneyId("5"))
-                .thenAnswer(ans-> Optional.of(item5));
+                .thenAnswer(ans -> Optional.of(item5));
         when(this.atmRepository.findByMoneyMoneyId("10"))
-                .thenAnswer(ans-> Optional.of(item10));
+                .thenAnswer(ans -> Optional.of(item10));
         when(this.atmRepository.findByMoneyMoneyId("20"))
-                .thenAnswer(ans-> Optional.of(item20));
+                .thenAnswer(ans -> Optional.of(item20));
         when(this.atmRepository.findByMoneyMoneyId("100"))
-                .thenAnswer(ans-> Optional.of(item100));
+                .thenAnswer(ans -> Optional.of(item100));
         when(this.atmRepository.findByMoneyMoneyId("200"))
-                .thenAnswer(ans-> Optional.of(item200));
+                .thenAnswer(ans -> Optional.of(item200));
 
         when(this.atmRepository.findByAmountGreaterThan(0L))
-                .thenAnswer(ans-> Optional.of(allMoney));
+                .thenAnswer(ans -> Optional.of(allMoney));
 
         when(this.env.getProperty(MAX_WITHDRAWAL_PARAM))
-                .thenAnswer(ans-> "2000");
+                .thenAnswer(ans -> "2000");
         when(this.env.getProperty(MAX_COINS_PARAM))
-                .thenAnswer(ans-> "50");
+                .thenAnswer(ans -> "50");
 
         String jsonStrForInput = "{\n" +
                 "\"amount\": 960.10,\n" +

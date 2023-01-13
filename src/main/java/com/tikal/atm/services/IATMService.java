@@ -1,6 +1,5 @@
 package com.tikal.atm.services;
 
-import com.google.gson.JsonObject;
 import com.tikal.atm.dto.ATMWithdrawalResultWrapperDTO;
 import com.tikal.atm.dto.RefillResultDTO;
 import com.tikal.atm.model.ATMItem;
@@ -12,8 +11,11 @@ import java.util.Map;
 
 public interface IATMService {
     void initATM(List<Money> allMoney);
+
     List<RefillResultDTO> refill(JSONObject input);
+
     ATMWithdrawalResultWrapperDTO withdrawal(JSONObject input);
+
     void saveATM(Map<Float, ATMItem> map);
 
 }

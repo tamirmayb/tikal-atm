@@ -12,7 +12,7 @@ import java.util.List;
 
 @Service
 @AllArgsConstructor
-public class MoneyService implements IMoneyService{
+public class MoneyService implements IMoneyService {
     private static final String COINS_PROPS = "#{'${money.coins.values}'.split(',')}";
     private static final String BILLS_PROPS = "#{'${money.bills.values}'.split(',')}";
 
@@ -28,8 +28,8 @@ public class MoneyService implements IMoneyService{
 
     public void initMoney() {
         List<Money> allMoney = new ArrayList<>();
-        coins.forEach(c-> allMoney.add(Money.of(c, Type.COIN)));
-        bills.forEach(b-> allMoney.add(Money.of(b, Type.BILL)));
+        coins.forEach(c -> allMoney.add(Money.of(c, Type.COIN)));
+        bills.forEach(b -> allMoney.add(Money.of(b, Type.BILL)));
 
         moneyRepository.deleteAll();
         moneyRepository.saveAll(allMoney);

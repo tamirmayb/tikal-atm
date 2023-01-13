@@ -24,7 +24,7 @@ public class ATMItemDTO {
 
     public static ATMItemDTO of(String moneyId, Type type, Long amount) {
         return ATMItemDTO.builder()
-                .moneyId (moneyId)
+                .moneyId(moneyId)
                 .type(type)
                 .amount(amount)
                 .build();

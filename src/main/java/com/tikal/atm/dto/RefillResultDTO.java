@@ -1,6 +1,7 @@
 package com.tikal.atm.dto;
 
 import lombok.*;
+
 @Data
 @Getter
 @Setter
@@ -15,7 +16,7 @@ public class RefillResultDTO {
 
     public static RefillResultDTO of(String id, Long amount) {
         return RefillResultDTO.builder()
-                .id (id)
+                .id(id)
                 .updatedAmount(amount)
                 .build();
     }

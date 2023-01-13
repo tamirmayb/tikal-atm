@@ -17,7 +17,7 @@ public class ATMWithdrawalResultDTO {
 
     public static ATMWithdrawalResultDTO fromDTO(ATMItemDTO dto) {
         return ATMWithdrawalResultDTO.builder()
-                .id (dto.getMoneyId())
+                .id(dto.getMoneyId())
                 .amount(dto.getAmount())
                 .build();
     }

@@ -10,6 +10,7 @@ import java.util.Optional;
 @Repository
 public interface ATMRepository extends MongoRepository<ATMItem, String> {
     Optional<List<ATMItem>> findByAmountGreaterThan(Long amount);
+
     Optional<ATMItem> findByMoneyMoneyId(String id);
 }
 

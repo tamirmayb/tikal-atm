@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
-public class ATMService implements IATMService{
+public class ATMService implements IATMService {
     public static final String MAX_WITHDRAWAL_PARAM = "atm.max.withdrawal";
     public static final String MAX_COINS_PARAM = "atm.max.coins";
 
@@ -41,11 +41,12 @@ public class ATMService implements IATMService{
     /**
      * initATM - Service function which fills the atm db with allowed coins & bills.
      * All items are set to amount = 0 at this point, waiting for the first refill to run
+     *
      * @param allMoney
      */
     public void initATM(List<Money> allMoney) {
         List<ATMItem> items = new ArrayList<>();
-        allMoney.forEach(a-> items.add(ATMItem.of(a, 0L)));
+        allMoney.forEach(a -> items.add(ATMItem.of(a, 0L)));
 
         atmRepository.deleteAll();
         atmRepository.saveAll(items);
@@ -55,6 +56,7 @@ public class ATMService implements IATMService{
      * refill - adds coins & bills to atm by updating the amount field.
      * It then saves the atm db and returns a summary of the process.
      * In case of invalid coin or bill with throw UnknownBillOrCoinException
+     *
      * @param input
      * @return
      */
@@ -64,7 +66,7 @@ public class ATMService implements IATMService{
         List<RefillResultDTO> results = new ArrayList<>();
         map.forEach((id, addAmount) -> {
             Optional<ATMItem> byId = atmRepository.findByMoneyMoneyId(id);
-            if(byId.isPresent()) {
+            if (byId.isPresent()) {
                 ATMItem atmItem = byId.get();
                 atmItem.setAmount(atmItem.getAmount() + addAmount);
                 atmRepository.save(atmItem);
@@ -80,6 +82,7 @@ public class ATMService implements IATMService{
     /**
      * withdrawal available coins & bills according to the value in input.
      * looks for the highest bills first
+     *
      * @param input
      * @return
      */
@@ -89,13 +92,13 @@ public class ATMService implements IATMService{
         float amount = (float) amountInput;
         String maxWithdrawal = env.getProperty(MAX_WITHDRAWAL_PARAM);
         assert maxWithdrawal != null;
-        if(amount > Float.parseFloat(maxWithdrawal)) {
+        if (amount > Float.parseFloat(maxWithdrawal)) {
             throw new MaximumWithdrawalException("Maximum Withdrawal amount is " + maxWithdrawal);
         }
 
         List<ATMItemDTO> result = new ArrayList<>();
         Optional<List<ATMItem>> allMoney = atmRepository.findByAmountGreaterThan(0L);
-        if(allMoney.isPresent()) {
+        if (allMoney.isPresent()) {
             Map<Float, ATMItem> map = new TreeMap<>(allMoney.get().stream()
                     .collect(Collectors.toMap(ATMItem::getMoneyValue, Function.identity()))).descendingMap();
             result.addAll(dispenseBillsAndCoins(amount, map));
@@ -106,6 +109,7 @@ public class ATMService implements IATMService{
     /**
      * dispenseBillsAndCoins looks for the correct combination of bills & coins to be dispensed
      * This is done according to availability and the amount needed to be withdrawn
+     *
      * @param withdrawParam
      * @param map
      * @return
@@ -121,21 +125,21 @@ public class ATMService implements IATMService{
         float available = 0;
         float withdraw = Utils.roundFloat(withdrawParam);
 
-        for(Map.Entry<Float, ATMItem> entry : map.entrySet()) {
+        for (Map.Entry<Float, ATMItem> entry : map.entrySet()) {
             float value = entry.getKey();
             Long atmItemsToBeDispensedCount = (long) (int) Math.floor(withdraw / value);
-            if(atmItemsToBeDispensedCount > 0) {
-                if(atmItemsToBeDispensedCount > entry.getValue().getAmount()) {
+            if (atmItemsToBeDispensedCount > 0) {
+                if (atmItemsToBeDispensedCount > entry.getValue().getAmount()) {
                     atmItemsToBeDispensedCount = entry.getValue().getAmount();
                 }
 
                 result.add(ATMItemDTO.of(entry.getKey().toString(), entry.getValue().getMoney().getType(), atmItemsToBeDispensedCount));
                 entry.getValue().setAmount(entry.getValue().getAmount() - atmItemsToBeDispensedCount);
 
-                if(entry.getValue().getMoney().getType().equals(Type.COIN)) {
+                if (entry.getValue().getMoney().getType().equals(Type.COIN)) {
                     coinCount += atmItemsToBeDispensedCount;
                     assert maxCoinsWithdrawal != null;
-                    if(coinCount > Integer.parseInt(maxCoinsWithdrawal)) {
+                    if (coinCount > Integer.parseInt(maxCoinsWithdrawal)) {
                         log.error("in calcBillsAndCoins, too many coins");
                         throw new MaximumCoinsWithdrawalException("too many coins");
                     }
@@ -143,13 +147,13 @@ public class ATMService implements IATMService{
                 float dispensed = value * atmItemsToBeDispensedCount;
                 available += dispensed;
                 withdraw = Utils.roundFloat(withdraw - dispensed);
-                if(withdraw == 0) {
+                if (withdraw == 0) {
                     break;
                 }
             }
         }
 
-        if(withdraw > 0) {
+        if (withdraw > 0) {
             log.error("in calcBillsAndCoins, not enough money to withdraw");
             throw new NotEnoughMoneyException("There's not enough money to withdraw, this ATM can only dispense " + Utils.roundFloat(available));
         }
@@ -163,13 +167,14 @@ public class ATMService implements IATMService{
 
     /**
      * converts raw summary dto into 2 lists of coins & bills to be sent back to the controller
+     *
      * @param result
      * @return
      */
     private ATMWithdrawalResultWrapperDTO processResult(List<ATMItemDTO> result) {
         List<ATMWithdrawalResultDTO> bills = new ArrayList<>();
         List<ATMWithdrawalResultDTO> coins = new ArrayList<>();
-        result.forEach(r-> {
+        result.forEach(r -> {
             switch (r.getType()) {
                 case BILL:
                     bills.add(ATMWithdrawalResultDTO.fromDTO(r));

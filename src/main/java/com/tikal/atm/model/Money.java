@@ -36,8 +36,8 @@ public class Money {
     public static Money of(String id, Type type) {
         float parsedValue = Utils.roundFloatStr(id);
         return Money.builder()
-                .moneyId (id)
-                .type (type)
+                .moneyId(id)
+                .type(type)
                 .value(parsedValue)
                 .build();
     }
