@@ -23,16 +23,20 @@ public class ATMItem {
     String id = UUID.randomUUID().toString();
 
     @JsonProperty
-    private String moneyId;
+    private Money money;
 
     @JsonProperty
     private int amount;
 
-    public static ATMItem of(String moneyId, int amount) {
+    public static ATMItem of(Money money, int amount) {
         return ATMItem.builder()
-                .moneyId (moneyId)
+                .money (money)
                 .amount(amount)
                 .build();
+    }
+
+    public Float getMoneyValue() {
+        return this.getMoney().getValue();
     }
 
 

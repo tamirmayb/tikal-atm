@@ -1,8 +1,10 @@
 package com.tikal.atm.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.tikal.atm.utils.Utils;
 import lombok.*;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.UUID;
@@ -22,16 +24,17 @@ public class Money {
     String id = UUID.randomUUID().toString();
 
     @JsonProperty
+    @Indexed(unique = true)
     private String moneyId;
 
     @JsonProperty
     private Type type;
 
     @JsonProperty
-    private Double value;
+    private Float value;
 
     public static Money of(String id, Type type) {
-        double parsedValue = Math.round(Float.parseFloat(id) * 100.0) / 100.0;
+        float parsedValue = Utils.roundFloatStr(id);
         return Money.builder()
                 .moneyId (id)
                 .type (type)
