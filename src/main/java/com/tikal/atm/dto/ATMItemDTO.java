@@ -1,6 +1,7 @@
 package com.tikal.atm.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.tikal.atm.model.Type;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 
@@ -16,11 +17,15 @@ public class ATMItemDTO {
     private String moneyId;
 
     @JsonProperty
+    private Type type;
+
+    @JsonProperty
     private int amount;
 
-    public static ATMItemDTO of(String moneyId, int amount) {
+    public static ATMItemDTO of(String moneyId, Type type, int amount) {
         return ATMItemDTO.builder()
                 .moneyId (moneyId)
+                .type(type)
                 .amount(amount)
                 .build();
     }

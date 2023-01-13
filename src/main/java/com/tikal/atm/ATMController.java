@@ -18,28 +18,14 @@ public class ATMController {
     private final ATMService atmService;
 
     @PostMapping("/withdrawal")
-    @ApiOperation(value = "",  notes = "Searches inventory for itineraries between two airports, which may include connecting flight(s)")
-    public ResponseEntity<Object> withdrawal(@RequestParam(name = "amount") float amount) {
-        try {
-            return ResponseEntity.ok(atmService.withdrawal(amount));
-        } catch (Exception e) {
-            ApiError apiError = new ApiError();
-            apiError.setMessage(e.getLocalizedMessage());
-            apiError.setApiErrorCode("400");
-            return new ResponseEntity<>(apiError, new HttpHeaders(), HttpStatus.BAD_REQUEST);
-        }
+    @ApiOperation(value = "",  notes = "")
+    public ResponseEntity<Object> withdrawal(@RequestBody() JSONObject input) {
+        return ResponseEntity.ok(atmService.withdrawal(input));
     }
 
     @PostMapping("/refill")
-    @ApiOperation(value = "",  notes = "Searches inventory for itineraries between two airports, which may include connecting flight(s)")
+    @ApiOperation(value = "",  notes = "")
     public ResponseEntity<Object> refill(@RequestBody JSONObject input) {
-        try {
-            return ResponseEntity.ok(atmService.refill(input));
-        } catch (Exception e) {
-            ApiError apiError = new ApiError();
-            apiError.setMessage(e.getLocalizedMessage());
-            apiError.setApiErrorCode("400");
-            return new ResponseEntity<>(apiError, new HttpHeaders(), HttpStatus.BAD_REQUEST);
-        }
+        return ResponseEntity.ok(atmService.refill(input));
     }
 }

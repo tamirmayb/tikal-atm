@@ -1,13 +1,23 @@
 package com.tikal.atm.services;
 
+import com.tikal.atm.Application;
 import com.tikal.atm.dto.ATMItemDTO;
+import com.tikal.atm.dto.ATMWithdrawalResultDTO;
+import com.tikal.atm.dto.ATMWithdrawalResultWrapperDTO;
+import com.tikal.atm.errors.exceptions.MaximumCoinsWithdrawalException;
+import com.tikal.atm.errors.exceptions.MaximumWithdrawalException;
+import com.tikal.atm.errors.exceptions.NotEnoughMoneyException;
 import com.tikal.atm.model.ATMItem;
 import com.tikal.atm.model.Money;
+import com.tikal.atm.model.Type;
 import com.tikal.atm.repositories.ATMRepository;
 import com.tikal.atm.utils.Utils;
 import lombok.AllArgsConstructor;
+import lombok.SneakyThrows;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.json.simple.JSONObject;
-import org.slf4j.helpers.Util;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -17,7 +27,14 @@ import java.util.stream.Collectors;
 @Service
 @AllArgsConstructor
 public class ATMService {
+    private static final String MAX_WITHDRAWAL_PARAM = "atm.max.withdrawal";
+    private static final String MAX_COINS_PARAM = "atm.max.coins";
+
+    private static final Logger log = LogManager.getLogger(Application.class);
+
     private final ATMRepository atmRepository;
+
+    private final Environment env;
 
     public void initATM(List<Money> allMoney) {
         List<ATMItem> items = new ArrayList<>();
@@ -27,19 +44,33 @@ public class ATMService {
         atmRepository.saveAll(items);
     }
 
-    public Object withdrawal(float amount) {
+    @SneakyThrows
+    public ATMWithdrawalResultWrapperDTO withdrawal(JSONObject input) {
+        double amountInput = (double) input.get("amount");
+        float amount = (float) amountInput;
+        String maxWithdrawal = env.getProperty(MAX_WITHDRAWAL_PARAM);
+        assert maxWithdrawal != null;
+        if(amount > Float.parseFloat(maxWithdrawal)) {
+            throw new MaximumWithdrawalException("Maximum Withdrawal amount is " + maxWithdrawal);
+        }
+
+        List<ATMItemDTO> result = new ArrayList<>();
         Optional<List<ATMItem>> allMoney = atmRepository.findByAmountGreaterThan(0);
         if(allMoney.isPresent()) {
             Map<Float, ATMItem> map = new TreeMap<>(allMoney.get().stream()
                     .collect(Collectors.toMap(ATMItem::getMoneyValue, Function.identity()))).descendingMap();
-            return calcBillsAndCoins(amount, map);
+            result.addAll(calcBillsAndCoins(amount, map));
         }
-        return new ArrayList<>();
+        return processResult(result);
     }
 
+    @SneakyThrows
     private List<ATMItemDTO> calcBillsAndCoins(float withdrawParam, Map<Float, ATMItem> map) {
         List<ATMItemDTO> result = new ArrayList<>();
+        String maxCoinsWithdrawal = env.getProperty(MAX_COINS_PARAM);
         float withdraw = Utils.roundFloat(withdrawParam);
+        float available = 0;
+        int coinCount = 0;
 
         for(Map.Entry<Float, ATMItem> entry : map.entrySet()) {
             float value = entry.getKey();
@@ -48,15 +79,47 @@ public class ATMService {
                 if(countOfMoneyItems > entry.getValue().getAmount()) {
                     countOfMoneyItems = entry.getValue().getAmount();
                 }
-                result.add(ATMItemDTO.of(entry.getKey().toString(), countOfMoneyItems));
+                result.add(ATMItemDTO.of(entry.getKey().toString(), entry.getValue().getMoney().getType(), countOfMoneyItems));
                 entry.getValue().setAmount(entry.getValue().getAmount() - countOfMoneyItems);
-                withdraw = Utils.roundFloat(withdraw - (value * countOfMoneyItems));
+
+                if(entry.getValue().getMoney().getType().equals(Type.COIN)) {
+                    coinCount += countOfMoneyItems;
+                    assert maxCoinsWithdrawal != null;
+                    if(coinCount > Integer.parseInt(maxCoinsWithdrawal)) {
+                        throw new MaximumCoinsWithdrawalException("too many coins");
+                    }
+                }
+                float dispensed = value * countOfMoneyItems;
+                available += dispensed;
+                withdraw = Utils.roundFloat(withdraw - dispensed);
                 if(withdraw == 0) {
                     break;
                 }
             }
         }
+
+        if(withdraw > 0) {
+            throw new NotEnoughMoneyException("There's not enough money to withdraw, this ATM can only dispense " + available);
+        }
         return result;
+    }
+
+    private ATMWithdrawalResultWrapperDTO processResult(List<ATMItemDTO> result) {
+        List<ATMWithdrawalResultDTO> bills = new ArrayList<>();
+        List<ATMWithdrawalResultDTO> coins = new ArrayList<>();
+        result.forEach(r-> {
+            switch (r.getType()) {
+                case BILL:
+                    bills.add(ATMWithdrawalResultDTO.fromDTO(r));
+                    return;
+                case COIN:
+                    coins.add(ATMWithdrawalResultDTO.fromDTO(r));
+                    return;
+                default:
+                    log.error("found invalid money type " + r.getType());
+            }
+        });
+        return ATMWithdrawalResultWrapperDTO.of(bills, coins);
     }
 
     public Object refill(JSONObject input) {
