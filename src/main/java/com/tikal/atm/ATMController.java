@@ -1,5 +1,6 @@
 package com.tikal.atm;
 
+import com.google.gson.JsonObject;
 import com.tikal.atm.services.ATMService;
 import io.swagger.annotations.ApiOperation;
 import lombok.AllArgsConstructor;

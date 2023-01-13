@@ -4,17 +4,18 @@
 This is the ATM application for the BE-Challenge, developed using Java as a spring boot application.
 
 ### Prerequisite
-* Java and tomcat
+* Java and tomcat, deploy the code onto a server or simply run it from your ide (intellij etc...).
 * Run ```mvn clean install```
 * Connection to Mongodb is also provided by default and can be changed if needed by modifying the fields starting with ```db.``` in application.properties.
-* I've already run a process (see comment out in Application.java) which fills the db from the csv files, the code for this process can be found in MoneyService.
+* I've already run a process (see comment out in Application.java) which fills the db with default money settings and initiates the atm, the code for this process can be found in MoneyService.
 
 ### Using the web service
-* Start the server and go to http://127.0.0.1:8080/tikal-atm/api/swagger-ui.html#/atm-controller/
+* Start the server and wait for log ```server & db ready now```
+* Go to http://127.0.0.1:8080/tikal-atm/api/swagger-ui.html#/atm-controller/
 * You should have access to Swagger api page which controls the web service.
 
 ### Features
-You can find the following api in the web service:
+You can find the following apis in the web service:
 
 ###### POST /atm/refill -
 * Add items of valid bills or coins, list of valid items can be found in application.properties (```money.bills.values, money.coins.values```).
@@ -51,7 +52,7 @@ You can find the following api in the web service:
           "amount": 837.44
       }
       ```
-      result: 
+      expected result: 
       ```
           {
               "bills": [
@@ -91,7 +92,7 @@ You can find the following api in the web service:
     
 
 ### TODOs
-* Add more tests.
+* Should add more tests.
 
 Please let me know if anything is missing or needs modifications.
 ### Thank you!

@@ -20,9 +20,9 @@ public class ATMItemDTO {
     private Type type;
 
     @JsonProperty
-    private int amount;
+    private Long amount;
 
-    public static ATMItemDTO of(String moneyId, Type type, int amount) {
+    public static ATMItemDTO of(String moneyId, Type type, Long amount) {
         return ATMItemDTO.builder()
                 .moneyId (moneyId)
                 .type(type)

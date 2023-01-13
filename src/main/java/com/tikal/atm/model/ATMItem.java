@@ -25,9 +25,9 @@ public class ATMItem {
     private Money money;
 
     @JsonProperty
-    private int amount;
+    private Long amount;
 
-    public static ATMItem of(Money money, int amount) {
+    public static ATMItem of(Money money, Long amount) {
         return ATMItem.builder()
                 .money (money)
                 .amount(amount)

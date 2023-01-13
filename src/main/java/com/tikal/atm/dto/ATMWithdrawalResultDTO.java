@@ -8,11 +8,12 @@ import lombok.*;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@EqualsAndHashCode
 public class ATMWithdrawalResultDTO {
 
     private String id;
 
-    private int amount;
+    private Long amount;
 
     public static ATMWithdrawalResultDTO fromDTO(ATMItemDTO dto) {
         return ATMWithdrawalResultDTO.builder()
