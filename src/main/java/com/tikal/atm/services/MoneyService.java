@@ -12,7 +12,7 @@ import java.util.List;
 
 @Service
 @AllArgsConstructor
-public class MoneyService {
+public class MoneyService implements IMoneyService{
     private static final String COINS_PROPS = "#{'${money.coins.values}'.split(',')}";
     private static final String BILLS_PROPS = "#{'${money.bills.values}'.split(',')}";
 

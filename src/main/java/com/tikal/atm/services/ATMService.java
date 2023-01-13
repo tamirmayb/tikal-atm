@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
-public class ATMService {
+public class ATMService implements IATMService{
     private static final String MAX_WITHDRAWAL_PARAM = "atm.max.withdrawal";
     private static final String MAX_COINS_PARAM = "atm.max.coins";
 
