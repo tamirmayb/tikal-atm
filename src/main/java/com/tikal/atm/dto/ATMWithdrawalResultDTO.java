@@ -1,9 +1,6 @@
 package com.tikal.atm.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.tikal.atm.model.Type;
 import lombok.*;
-import org.springframework.data.annotation.Id;
 
 @Getter
 @Setter

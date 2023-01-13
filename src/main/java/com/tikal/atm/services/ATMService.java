@@ -7,6 +7,7 @@ import com.tikal.atm.dto.ATMWithdrawalResultWrapperDTO;
 import com.tikal.atm.errors.exceptions.MaximumCoinsWithdrawalException;
 import com.tikal.atm.errors.exceptions.MaximumWithdrawalException;
 import com.tikal.atm.errors.exceptions.NotEnoughMoneyException;
+import com.tikal.atm.errors.exceptions.UnknownBillOrCoinException;
 import com.tikal.atm.model.ATMItem;
 import com.tikal.atm.model.Money;
 import com.tikal.atm.model.Type;
@@ -45,6 +46,22 @@ public class ATMService {
     }
 
     @SneakyThrows
+    public String refill(JSONObject input) {
+        Map<String, Integer> map = (Map<String, Integer>) input.get("money");
+        map.forEach((id, addAmount) -> {
+            Optional<ATMItem> byId = atmRepository.findByMoneyMoneyId(id);
+            if(byId.isPresent()) {
+                ATMItem atmItem = byId.get();
+                atmItem.setAmount(atmItem.getAmount() + addAmount);
+                atmRepository.save(atmItem);
+            } else {
+                throw new UnknownBillOrCoinException("Bill or coin does not exist and cannot be added " + id);
+            }
+        });
+        return "done";
+    }
+
+    @SneakyThrows
     public ATMWithdrawalResultWrapperDTO withdrawal(JSONObject input) {
         double amountInput = (double) input.get("amount");
         float amount = (float) amountInput;
@@ -74,22 +91,22 @@ public class ATMService {
 
         for(Map.Entry<Float, ATMItem> entry : map.entrySet()) {
             float value = entry.getKey();
-            int countOfMoneyItems = (int)Math.floor(withdraw / value);
-            if(countOfMoneyItems > 0) {
-                if(countOfMoneyItems > entry.getValue().getAmount()) {
-                    countOfMoneyItems = entry.getValue().getAmount();
+            int atmItemsToBeDispensedCount = (int)Math.floor(withdraw / value);
+            if(atmItemsToBeDispensedCount > 0) {
+                if(atmItemsToBeDispensedCount > entry.getValue().getAmount()) {
+                    atmItemsToBeDispensedCount = entry.getValue().getAmount();
                 }
-                result.add(ATMItemDTO.of(entry.getKey().toString(), entry.getValue().getMoney().getType(), countOfMoneyItems));
-                entry.getValue().setAmount(entry.getValue().getAmount() - countOfMoneyItems);
+                result.add(ATMItemDTO.of(entry.getKey().toString(), entry.getValue().getMoney().getType(), atmItemsToBeDispensedCount));
+                entry.getValue().setAmount(entry.getValue().getAmount() - atmItemsToBeDispensedCount);
 
                 if(entry.getValue().getMoney().getType().equals(Type.COIN)) {
-                    coinCount += countOfMoneyItems;
+                    coinCount += atmItemsToBeDispensedCount;
                     assert maxCoinsWithdrawal != null;
                     if(coinCount > Integer.parseInt(maxCoinsWithdrawal)) {
                         throw new MaximumCoinsWithdrawalException("too many coins");
                     }
                 }
-                float dispensed = value * countOfMoneyItems;
+                float dispensed = value * atmItemsToBeDispensedCount;
                 available += dispensed;
                 withdraw = Utils.roundFloat(withdraw - dispensed);
                 if(withdraw == 0) {
@@ -101,7 +118,12 @@ public class ATMService {
         if(withdraw > 0) {
             throw new NotEnoughMoneyException("There's not enough money to withdraw, this ATM can only dispense " + available);
         }
+        saveATM(map);
         return result;
+    }
+
+    private void saveATM(Map<Float, ATMItem> map) {
+        map.values().forEach(atmRepository::save);
     }
 
     private ATMWithdrawalResultWrapperDTO processResult(List<ATMItemDTO> result) {
@@ -120,18 +142,5 @@ public class ATMService {
             }
         });
         return ATMWithdrawalResultWrapperDTO.of(bills, coins);
-    }
-
-    public Object refill(JSONObject input) {
-        Map<String, Integer> map = (Map<String, Integer>) input.get("money");
-        map.forEach((id, addAmount) -> {
-            Optional<ATMItem> byId = atmRepository.findByMoneyMoneyId(id);
-            if(byId.isPresent()) {
-                ATMItem atmItem = byId.get();
-                atmItem.setAmount(atmItem.getAmount() + addAmount);
-                atmRepository.save(atmItem);
-            }
-        });
-        return null;
     }
 }

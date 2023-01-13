@@ -1,14 +1,14 @@
 package com.tikal.atm;
 
-import com.force.api.ApiError;
 import com.tikal.atm.services.ATMService;
 import io.swagger.annotations.ApiOperation;
 import lombok.AllArgsConstructor;
 import org.json.simple.JSONObject;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @AllArgsConstructor
