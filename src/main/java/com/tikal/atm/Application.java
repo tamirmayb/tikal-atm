@@ -21,7 +21,7 @@ public class Application extends SpringBootServletInitializer {
 
     public static void main(final String[] args) {
         ConfigurableApplicationContext context = SpringApplication.run(Application.class, args);
-        context.getBean(MoneyService.class).initMoney();
+//        context.getBean(MoneyService.class).initMoney();
         log.info("server & db ready now");
 
     }

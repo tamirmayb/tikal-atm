@@ -38,6 +38,11 @@ public class ATMService implements IATMService{
 
     private final Environment env;
 
+    /**
+     * initATM - Service function which fills the atm db with allowed coins & bills.
+     * All items are set to amount = 0 at this point, waiting for the first refill to run
+     * @param allMoney
+     */
     public void initATM(List<Money> allMoney) {
         List<ATMItem> items = new ArrayList<>();
         allMoney.forEach(a-> items.add(ATMItem.of(a, 0L)));
@@ -46,6 +51,13 @@ public class ATMService implements IATMService{
         atmRepository.saveAll(items);
     }
 
+    /**
+     * refill - adds coins & bills to atm by updating the amount field.
+     * It then saves the atm db and returns a summary of the process.
+     * In case of invalid coin or bill with throw UnknownBillOrCoinException
+     * @param input
+     * @return
+     */
     @SneakyThrows
     public List<RefillResultDTO> refill(JSONObject input) {
         Map<String, Integer> map = (Map<String, Integer>) input.get("money");
@@ -65,6 +77,12 @@ public class ATMService implements IATMService{
         return results;
     }
 
+    /**
+     * withdrawal available coins & bills according to the value in input.
+     * looks for the highest bills first
+     * @param input
+     * @return
+     */
     @SneakyThrows
     public ATMWithdrawalResultWrapperDTO withdrawal(JSONObject input) {
         double amountInput = (double) input.get("amount");
@@ -85,6 +103,13 @@ public class ATMService implements IATMService{
         return processResult(result);
     }
 
+    /**
+     * dispenseBillsAndCoins looks for the correct combination of bills & coins to be dispensed
+     * This is done according to availability and the amount needed to be withdrawn
+     * @param withdrawParam
+     * @param map
+     * @return
+     */
     @SneakyThrows
     private List<ATMItemDTO> dispenseBillsAndCoins(float withdrawParam, Map<Float, ATMItem> map) {
         log.info("in calcBillsAndCoins, trying to dispense amount " + withdrawParam);
@@ -136,6 +161,11 @@ public class ATMService implements IATMService{
         map.values().forEach(atmRepository::save);
     }
 
+    /**
+     * converts raw summary dto into 2 lists of coins & bills to be sent back to the controller
+     * @param result
+     * @return
+     */
     private ATMWithdrawalResultWrapperDTO processResult(List<ATMItemDTO> result) {
         List<ATMWithdrawalResultDTO> bills = new ArrayList<>();
         List<ATMWithdrawalResultDTO> coins = new ArrayList<>();
