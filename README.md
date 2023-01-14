@@ -26,10 +26,9 @@ You can find the following apis in the web service:
 ###### POST /atm/refill -
 
 * Add items of valid bills or coins, list of valid items can be found in
-  application.properties (```money.bills.values, money.coins.values```).
+  application.properties ```money.bills.values, money.coins.values```.
 * If an unknown bill/coin is provided then the server should respond with status 422 (Unprocessable Entity) and
   appropriate message.
-* Error handling: If an unknown bill/coin is provided then the would server respond with status 422.
 * If no error had occurred the server would return 200 with text 'done'.
 * Example for using refill:
 
@@ -54,19 +53,18 @@ You can find the following apis in the web service:
 * Withdrawal api returns the biggest bills or biggest coins available in the ATM.
 * Error handling:
     * TheMaximum amount for a single withdrawal is 2000, configurable in
-      application.properties (```atm.max.withdrawal```). If exceeded the server response with status 422.
+      application.properties ```atm.max.withdrawal```. If exceeded the server response with status 422.
     * If there is not enough money (bills or coins) in the ATM return http status 409, the error includes the closest
       amount that is available for withdrawal.
     * Result will not include more than 50 coins, if so server returns http status 422.
     * Example for using withdrawal:
-        * If the ATM had run refill with the above configuration and calling withdrawal with the amount as describe
-          below:
+        * If the ATM had run refill with the same input as the ```refill``` example above, calling ```withdrawal``` with the following input 
           ```
           {
               "amount": 837.44
           }
           ```
-          expected result:
+          should return the following expected result:
           ```
               {
                   "bills": [
