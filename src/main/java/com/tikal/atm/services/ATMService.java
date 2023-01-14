@@ -16,6 +16,8 @@ import com.tikal.atm.repositories.ATMRepository;
 import com.tikal.atm.utils.Utils;
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.simple.JSONObject;
@@ -24,6 +26,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.function.Function;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Service
@@ -88,8 +91,16 @@ public class ATMService implements IATMService {
      */
     @SneakyThrows
     public ATMWithdrawalResultWrapperDTO withdrawal(JSONObject input) {
-        double amountInput = (double) input.get("amount");
-        float amount = (float) amountInput;
+        String inputStr = input.get("amount").toString();
+        // check the input, should be a float (missing . is ok) viable if not throw exception.
+        if(NumberUtils.isCreatable(inputStr)) {
+           if(!inputStr.contains(".")) {
+               inputStr = inputStr + ".00";
+           }
+        } else {
+            throw new IllegalArgumentException("Invalid amount input, try again");
+        }
+        float amount = Float.parseFloat(inputStr);
         String maxWithdrawal = env.getProperty(MAX_WITHDRAWAL_PARAM);
         assert maxWithdrawal != null;
         if (amount > Float.parseFloat(maxWithdrawal)) {
