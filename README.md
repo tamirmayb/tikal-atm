@@ -58,7 +58,7 @@ You can find the following apis in the web service:
       amount that is available for withdrawal.
     * Result will not include more than 50 coins, if so server returns http status 422.
     * Example for using withdrawal:
-        * If the ATM had run refill with the same input as the ```refill``` example above, calling ```withdrawal``` with the following input amount 
+        * If the ATM had run refill with the same input as the ```refill``` example above, calling ```withdrawal``` with the following input 
           ```
           {
               "amount": 837.44
